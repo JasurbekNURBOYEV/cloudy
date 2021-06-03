@@ -4,7 +4,7 @@ from core.utils.loader import load_forecasts_from_api
 
 
 class Command(BaseCommand):
-    help = "We'll try to mimic celery task, and use this command to check if emails work"
+    help = "We'll use this command to run sync process manually (whenever necessary)"
 
     def handle(self, *args, **options):
         load_forecasts_from_api()

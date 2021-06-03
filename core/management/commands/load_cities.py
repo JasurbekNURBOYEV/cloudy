@@ -4,7 +4,7 @@ from core.utils.loader import load_cities_from_json
 
 
 class Command(BaseCommand):
-    help = "We'll try to mimic celery task, and use this command to check if emails work"
+    help = "We'll use this command to load cities from JSON to database"
 
     def handle(self, *args, **options):
         load_cities_from_json()
