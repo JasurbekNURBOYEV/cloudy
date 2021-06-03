@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  core:
+    build: .
+    ports:
+      - '1465:1465'
+    command: daphne -b 0.0.0.0 -p 1465 cloudy.asgi:application
+    env_file:
+      - .env
+    volumes:
+      - .:/cloudy
+    links:
+      - db:db
+  db:
+    image: "postgres"
+    env_file:
+      - .env
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    env_file:
+      - .env
+    ports:
+      - "5672:5672"
+    restart: on-failure
+  celery_worker:
+    build: .
+    command: bash -c "celery -A cloudy worker -l info --autoscale=5,1"
+    env_file:
+      - .env
+    volumes:
+      - .:/cloudy
+    restart: unless-stopped
+    depends_on:
+      - core
+      - rabbitmq
+  celery_beat:
+    build: .
+    command: "celery -A cloudy beat"
+    env_file:
+      - .env
+    volumes:
+      - .:/cloudy
+    depends_on:
+      - core
+      - rabbitmq
